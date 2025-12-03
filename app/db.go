@@ -1,7 +1,7 @@
-
 package app
 
 import (
+	"KageNoEn/model"
 	"fmt"
 	"log"
 	"os"
@@ -31,7 +31,9 @@ func Connexion() {
 		log.Fatalf("failed to connect to the database: %v", errors)
 	}
 
-	db.AutoMigrate()
+	db.AutoMigrate(
+		&model.Role{},
+	)
 
 	DB = db
 }
