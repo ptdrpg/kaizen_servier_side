@@ -33,6 +33,7 @@ func Connexion() {
 
 	db.AutoMigrate(
 		&model.Role{},
+		&model.Rank{},
 	)
 
 	DB = db
