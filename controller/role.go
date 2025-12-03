@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +21,8 @@ func (c *Controller) GetAllRoles(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetRole(w http.ResponseWriter, r *http.Request) {
-	role, err := c.R.GetRole(r.URL.Query().Get("id"))
+	id := chi.URLParam(r, "id")
+	role, err := c.R.GetRole(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,7 +54,8 @@ func (c *Controller) CreateRole(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) DeleteRole(w http.ResponseWriter, r *http.Request) {
-	if err := c.R.DeleteRole(r.URL.Query().Get("id")); err != nil {
+	id := chi.URLParam(r, "id")
+	if err := c.R.DeleteRole(id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
