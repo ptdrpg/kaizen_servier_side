@@ -13,6 +13,10 @@ type RankList struct {
 	Data []model.Rank `json:"data"`
 }
 
+type RankResponse struct {
+	Data model.Rank `json:"data"`
+}
+
 func (c *Controller) GetAllRanks(w http.ResponseWriter, r *http.Request) {
 	ranks, err := c.R.GetAllRanks()
 	if err != nil {
@@ -43,9 +47,13 @@ func (c *Controller) CreateRank(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data := RankResponse{
+		Data: rank,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(rank)
+	json.NewEncoder(w).Encode(data)
 }
 
 func (c *Controller) UpdateRank(w http.ResponseWriter, r *http.Request) {
@@ -66,9 +74,13 @@ func (c *Controller) UpdateRank(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data := RankResponse{
+		Data: rank,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(rank)
+	json.NewEncoder(w).Encode(data)
 }
 
 func (c *Controller) DeleteRank(w http.ResponseWriter, r *http.Request) {
