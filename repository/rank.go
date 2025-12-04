@@ -28,7 +28,7 @@ func (r *Repository) CreateRank(rank model.Rank) error {
 	return nil
 }
 
-func (r *Repository) UpdateRank(rank *model.Rank) (error) {
+func (r *Repository) UpdateRank(rank *model.Rank) error {
 	if err := r.DB.Where("id = ?", rank.Id).Updates(&rank).Error; err != nil {
 		return err
 	}

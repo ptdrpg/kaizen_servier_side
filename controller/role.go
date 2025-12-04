@@ -41,8 +41,8 @@ func (c *Controller) CreateRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newUUID := uuid.New().String()
-	role.Id= newUUID
-	
+	role.Id = newUUID
+
 	if err := c.R.CreateRole(role); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

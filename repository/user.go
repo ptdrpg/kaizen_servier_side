@@ -11,7 +11,7 @@ func (r *Repository) GetAllUsers() ([]model.User, error) {
 	return users, nil
 }
 
-func (r *Repository) GetUserById(id string) (model.User) {
+func (r *Repository) GetUserById(id string) model.User {
 	var user model.User
 	if err := r.DB.Where("id = ?", id).Find(&user).Error; err != nil {
 		return model.User{}

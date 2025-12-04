@@ -1,9 +1,8 @@
-
 package router
 
 import (
-	"net/http"
 	"KageNoEn/controller"
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -60,5 +59,3 @@ func (r *Router) RegisterRouter() {
 func (r *Router) Handler() http.Handler {
 	return r.R
 }
-	
-	

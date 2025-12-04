@@ -38,4 +38,3 @@ func Connexion() {
 
 	DB = db
 }
-	
