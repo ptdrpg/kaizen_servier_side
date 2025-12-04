@@ -9,46 +9,40 @@ import (
 	"github.com/google/uuid"
 )
 
-type RankList struct {
-	Data []model.Rank `json:"data"`
-}
-
-type RankResponse struct {
-	Data model.Rank `json:"data"`
-}
-
-func (c *Controller) GetAllRanks(w http.ResponseWriter, r *http.Request) {
-	ranks, err := c.R.GetAllRanks()
+func (c *Controller) GetAllUserStatus(w http.ResponseWriter, r *http.Request) {
+	userStatus, err := c.R.GetAllUserStatus()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	data := RankList{Data: ranks}
+	data := &model.UserStatusList{
+		Data: userStatus,
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(data)
 }
 
-func (c *Controller) CreateRank(w http.ResponseWriter, r *http.Request) {
-	var rank model.Rank
-	err := json.NewDecoder(r.Body).Decode(&rank)
+func (c *Controller) CreateUserStatus(w http.ResponseWriter, r *http.Request) {
+	var status model.UserStatus
+	err := json.NewDecoder(r.Body).Decode(&status)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	newUUID := uuid.New().String()
-	rank.Id = newUUID
+	status.Id = newUUID
 
-	if err := c.R.CreateRank(rank); err != nil {
+	if err := c.R.CreateUserStatus(status); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	data := RankResponse{
-		Data: rank,
+	data := &model.UserStatusResponse{
+		Data: status,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -56,26 +50,28 @@ func (c *Controller) CreateRank(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func (c *Controller) UpdateRank(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdateUserStatus(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	rank, err := c.R.GetRankById(id)
+
+	status, err := c.R.GetUserStatusById(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&rank); err != nil {
+	err = json.NewDecoder(r.Body).Decode(&status)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := c.R.UpdateRank(&rank); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := c.R.UpdateUserStatus(&status); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	data := RankResponse{
-		Data: rank,
+	data := &model.UserStatusResponse{
+		Data: status,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -83,9 +79,9 @@ func (c *Controller) UpdateRank(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func (c *Controller) DeleteRank(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) DeleteUserStatus(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	if err := c.R.DeleteRank(id); err != nil {
+	if err := c.R.DeleteUserStatus(id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

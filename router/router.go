@@ -52,6 +52,12 @@ func (r *Router) RegisterRouter() {
 				rank.Put("/{id}", r.C.UpdateRank)
 				rank.Delete("/{id}", r.C.DeleteRank)
 			})
+			v1.Route("/user-status", func(status chi.Router) {
+				status.Get("/", r.C.GetAllUserStatus)
+				status.Post("/", r.C.CreateUserStatus)
+				status.Put("/{id}", r.C.UpdateUserStatus)
+				status.Delete("/{id}", r.C.DeleteUserStatus)
+			})
 		})
 	})
 }

@@ -4,7 +4,7 @@ import "KageNoEn/model"
 
 func (r *Repository) GetAllUsers() ([]model.User, error) {
 	var users []model.User
-	if err := r.DB.Find(&users).Error; err != nil {
+	if err := r.DB.Preload("Rank").Preload("Role").Find(&users).Error; err != nil {
 		return []model.User{}, err
 	}
 
@@ -13,7 +13,7 @@ func (r *Repository) GetAllUsers() ([]model.User, error) {
 
 func (r *Repository) GetUserById(id string) model.User {
 	var user model.User
-	if err := r.DB.Where("id = ?", id).Find(&user).Error; err != nil {
+	if err := r.DB.Where("id = ?", id).Preload("Rank").Preload("Role").Find(&user).Error; err != nil {
 		return model.User{}
 	}
 

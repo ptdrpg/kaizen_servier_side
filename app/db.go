@@ -34,6 +34,7 @@ func Connexion() {
 	db.AutoMigrate(
 		&model.Role{},
 		&model.Rank{},
+		&model.UserStatus{},
 	)
 
 	DB = db
