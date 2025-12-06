@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -126,6 +128,49 @@ func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
 	data := &model.RegisterResponse{
 		Data:  secure,
 		Token: token,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(data)
+}
+
+func (c *Controller) ChangePass(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	user, err := c.R.GetUserById(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	var input model.ChangePassInput
+	err = json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !lib.CheckPass(input.OldPass, user.Password) {
+		http.Error(w, "invalid password", http.StatusUnauthorized)
+		return
+	}
+
+	pssw, err := lib.HashPass(input.NewPass)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user.Password = pssw
+	if err := c.R.UpdateUser(user); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := &model.UpdateMessage{
+		Message: "Password changed successfully",
+		Status:  http.StatusOK,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

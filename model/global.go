@@ -7,6 +7,11 @@ type DeleteModel struct {
 	Status  int    `json:"status"`
 }
 
+type UpdateMessage struct {
+	Message string `json:"message"`
+	Status  int    `json:"status"`
+}
+
 type SecureUserRes struct {
 	Id        string      `gorm:"id;primarykey" json:"id"`
 	Username  string      `gorm:"username;unique" json:"username"`
@@ -27,4 +32,9 @@ type SecureUserRes struct {
 type RegisterResponse struct {
 	Data  SecureUserRes `json:"data"`
 	Token string        `json:"token"`
+}
+
+type ChangePassInput struct {
+	OldPass string `json:"old_pass"`
+	NewPass string `json:"new_pass"`
 }
