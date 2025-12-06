@@ -1,4 +1,3 @@
-
 package cmd
 
 import (
@@ -10,6 +9,7 @@ import (
 	"KageNoEn/controller"
 	"KageNoEn/repository"
 	"KageNoEn/router"
+
 	"github.com/spf13/cobra"
 )
 
@@ -50,5 +50,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-	
-	

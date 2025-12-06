@@ -10,22 +10,12 @@ import (
 )
 
 func JWTMiddleware(next http.Handler) http.Handler {
-	excludedPaths := map[string]bool{
-		"/api/v1/login": true,
-	}
-	privatePaths := map[string]bool{
-		"/api/v1/users": true,
-	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 
-		if excludedPaths[r.URL.Path] {
-			next.ServeHTTP(w, r)
-			return
-		}
 		authHeader := r.Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
 			http.Error(w, "token not found", http.StatusUnauthorized)
@@ -55,11 +45,6 @@ func JWTMiddleware(next http.Handler) http.Handler {
 
 		if claims.ExpiresAt < time.Now().Unix() {
 			http.Error(w, "Expired token", http.StatusUnauthorized)
-			return
-		}
-
-		if claims.Role != "admin" && privatePaths[r.URL.Path] {
-			http.Error(w, "Acces refused", http.StatusForbidden)
 			return
 		}
 

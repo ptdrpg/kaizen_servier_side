@@ -61,6 +61,9 @@ func (r *Router) RegisterRouter() {
 				status.Put("/{id}", r.C.UpdateUserStatus)
 				status.Delete("/{id}", r.C.DeleteUserStatus)
 			})
+			v1.Route("/usr", func(user chi.Router) {
+				user.Put("/{id}", r.C.ChangePass)
+			})
 		})
 	})
 }
