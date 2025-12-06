@@ -55,8 +55,21 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	secure := model.SecureUserRes{
+		Id:        user.Id,
+		Username:  user.Username,
+		Rank:      user.Rank,
+		Status:    user.Status,
+		Role:      user.Role,
+		Elo:       user.Elo,
+		IsOnline:  user.IsOnline,
+		LastLogin: user.LastLogin,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
 	data := &model.RegisterResponse{
-		Data: *user,
+		Data:  secure,
 		Token: token,
 	}
 
@@ -65,4 +78,57 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
+func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
+	var input model.UserInput
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
+	user, err := c.R.GetUserByUsername(input.Username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !lib.CheckPass(input.Password, user.Password) {
+		http.Error(w, "invalid password", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := lib.GenerateToken(user.Id, user.Role.Label, user.Username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	user.IsOnline = true
+	user.LastLogin = time.Now()
+	if err := c.R.UpdateUser(user); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	secure := model.SecureUserRes{
+		Id:        user.Id,
+		Username:  user.Username,
+		Rank:      user.Rank,
+		Status:    user.Status,
+		Role:      user.Role,
+		Elo:       user.Elo,
+		IsOnline:  user.IsOnline,
+		LastLogin: user.LastLogin,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	data := &model.RegisterResponse{
+		Data:  secure,
+		Token: token,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(data)
+}

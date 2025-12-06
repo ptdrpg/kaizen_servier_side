@@ -20,6 +20,15 @@ func (r *Repository) GetUserById(id string) (model.User, error) {
 	return user, nil
 }
 
+func (r *Repository) GetUserByUsername(username string) (model.User, error) {
+	var user model.User
+	if err := r.DB.Where("username = ?", username).Preload("Rank").Preload("Role").Preload("Status").Find(&user).Error; err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}
+
 func (r *Repository) CreateUser(user model.User) error {
 	if err := r.DB.Create(&user).Error; err != nil {
 		return err
@@ -28,12 +37,12 @@ func (r *Repository) CreateUser(user model.User) error {
 	return nil
 }
 
-func (r *Repository) Updateuser(user model.User) (model.User, error) {
+func (r *Repository) UpdateUser(user model.User) error {
 	if err := r.DB.Where("id = ?", user.Id).Updates(&user).Error; err != nil {
-		return model.User{}, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
 func (r *Repository) DeleteUser(id string) error {
