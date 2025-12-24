@@ -81,7 +81,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
-	var input model.UserInput
+	var input model.UserLoginInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

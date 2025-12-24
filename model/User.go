@@ -27,6 +27,11 @@ type UserInput struct {
 	Password string `gorm:"password" json:"password"`
 }
 
+type UserLoginInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type UserList struct {
 	Data []User `json:"data"`
 }
