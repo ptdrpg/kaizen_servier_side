@@ -197,6 +197,18 @@ func (c *Controller) ChangePass(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	user, err := c.R.GetUserById(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	user.IsOnline = false
+	user.LastLogin = time.Now()
+	_ = c.R.UpdateUser(user)
+
 	http.SetCookie(w, &http.Cookie{
     Name:     "access_token",
     Value:    "",

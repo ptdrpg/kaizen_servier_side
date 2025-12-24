@@ -65,7 +65,7 @@ func (r *Router) RegisterRouter() {
 				user.Put("/{id}", r.C.ChangePass)
 			})
 			v1.Route("/logout", func(logout chi.Router) {
-				logout.Post("/", r.C.Logout)
+				logout.Put("/{id}", r.C.Logout)
 			})
 		})
 	})
