@@ -73,6 +73,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 	secure := model.SecureUserRes{
 		Id:        user.Id,
 		Username:  user.Username,
+		Email: user.Email,
 		Rank:      user.Rank,
 		Status:    user.Status,
 		Role:      user.Role,
@@ -133,6 +134,7 @@ func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
 	secure := model.SecureUserRes{
 		Id:        user.Id,
 		Username:  user.Username,
+		Email:     user.Email,
 		Rank:      user.Rank,
 		Status:    user.Status,
 		Role:      user.Role,
