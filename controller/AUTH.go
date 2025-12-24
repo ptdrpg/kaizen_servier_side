@@ -57,6 +57,16 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false, // true en prod HTTPS
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(24 * time.Hour),
+	})
+
 	secure := model.SecureUserRes{
 		Id:        user.Id,
 		Username:  user.Username,
@@ -71,8 +81,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := &model.RegisterResponse{
-		Data:  secure,
-		Token: token,
+		Data: secure,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -82,15 +91,14 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
 	var input model.UserLoginInput
-	err := json.NewDecoder(r.Body).Decode(&input)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	user, err := c.R.GetUserByUsername(input.Username)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "user not found", http.StatusUnauthorized)
 		return
 	}
 
@@ -105,12 +113,19 @@ func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(24 * time.Hour),
+	})
+
 	user.IsOnline = true
 	user.LastLogin = time.Now()
-	if err := c.R.UpdateUser(user); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	_ = c.R.UpdateUser(user)
 
 	secure := model.SecureUserRes{
 		Id:        user.Id,
@@ -125,15 +140,13 @@ func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: user.UpdatedAt,
 	}
 
-	data := &model.RegisterResponse{
-		Data:  secure,
-		Token: token,
-	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(model.RegisterResponse{
+		Data: secure,
+	})
 }
+
 
 func (c *Controller) ChangePass(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
