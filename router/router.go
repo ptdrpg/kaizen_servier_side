@@ -62,10 +62,17 @@ func (r *Router) RegisterRouter() {
 				status.Delete("/{id}", r.C.DeleteUserStatus)
 			})
 			v1.Route("/usr", func(user chi.Router) {
+				user.Get("/", r.C.GetAllUser)
 				user.Put("/{id}", r.C.ChangePass)
 			})
 			v1.Route("/logout", func(logout chi.Router) {
 				logout.Put("/{id}", r.C.Logout)
+			})
+			v1.Route("/friends", func(friend chi.Router) {
+				friend.Get("/{id}", r.C.GetAllFriends)
+				friend.Get("/confirm/{id}", r.C.GetRequest)
+				friend.Post("/", r.C.AddFriend)
+				friend.Put("/confirm/{id}", r.C.ConfirmFriend)
 			})
 		})
 	})
