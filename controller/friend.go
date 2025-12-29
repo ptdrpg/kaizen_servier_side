@@ -27,15 +27,16 @@ func (c *Controller) GetAllFriends(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetFiltredSearch(w http.ResponseWriter, r *http.Request) {
-	username := chi.URLParam(r, "username")
+	id := chi.URLParam(r, "id")
+	username := r.URL.Query().Get("username")
 
-	users, err := c.R.GetFiltredSearch(username)
+	users, err := c.R.GetFilteredSearch(id, username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	data := model.FriendRequestList{
+	data := model.FriendListResponse{
 		Data: users,
 	}
 

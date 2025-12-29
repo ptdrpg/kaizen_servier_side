@@ -26,13 +26,35 @@ func (r *Repository) GetFriendRequest(receiverId string) ([]model.FriendRequestT
 	return requests, nil
 }
 
-func (r *Repository) GetFiltredSearch(username string) ([]model.FriendRequestType, error) {
-	var users []model.FriendRequestType
-	if err := r.DB.Table("users").Select("id, username").Where("username LIKE ?", "%"+username+"%").Scan(&users).Error; err != nil {
+func (r *Repository) GetFilteredSearch(myID string, username string) ([]model.FriendWithStatus, error) {
+	var users []model.FriendWithStatus
+
+	err := r.DB.
+		Table("users u").
+		Select(`
+			u.id,
+			u.username,
+			u.is_online,
+			f.status
+		`).
+		Joins(`
+			LEFT JOIN friend_lists f
+			  ON (
+			       (f.sender = ? AND f.receiver = u.id)
+			    OR (f.receiver = ? AND f.sender = u.id)
+			  )
+		`, myID, myID).
+		Where("u.username ILIKE ?", "%"+username+"%").
+		Where("u.id != ?", myID).
+		Scan(&users).Error
+
+	if err != nil {
 		return nil, err
 	}
+
 	return users, nil
 }
+
 
 func (r *Repository) AddFriend(data model.FriendList) error {
 	if err := r.DB.Create(&data).Error; err != nil {
