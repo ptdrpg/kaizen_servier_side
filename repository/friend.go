@@ -77,3 +77,11 @@ func (r *Repository) ConfirmFriend(invit model.FriendList) error {
 	}
 	return nil
 }
+
+func (r *Repository) DeclineFriendRequest(invitId string) error {
+	if err := r.DB.Where("id = ?", invitId).Delete(&model.FriendList{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

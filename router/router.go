@@ -21,7 +21,9 @@ func NewRouter(c *controller.Controller) *Router {
 		AllowedOrigins:   []string{"http://localhost:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
+		MaxAge: 300,
 	}))
 
 	return &Router{
@@ -71,9 +73,12 @@ func (r *Router) RegisterRouter() {
 			v1.Route("/friends", func(friend chi.Router) {
 				friend.Get("/{id}", r.C.GetAllFriends)
 				friend.Post("/", r.C.AddFriend)
-				friend.Get("/invit/{id}", r.C.GetRequest)
 				friend.Get("/search/{id}", r.C.GetFiltredSearch)
-				friend.Put("/confirm/{id}", r.C.ConfirmFriend)
+				friend.Route("/invit/{id}", func(invit chi.Router) {
+					invit.Get("/", r.C.GetRequest)
+					invit.Put("/", r.C.ConfirmFriend)
+					invit.Delete("/", r.C.DeclineFriendRequest)
+				})
 			})
 		})
 	})

@@ -70,10 +70,10 @@ func (c *Controller) AddFriend(w http.ResponseWriter, r *http.Request) {
 	}
 
 	invit := model.FriendList{
-		Id: uuid.New().String(),
-		Sender: input.SenderId,
+		Id:       uuid.New().String(),
+		Sender:   input.SenderId,
 		Receiver: input.ReceiverId,
-		Status: "pending",
+		Status:   "pending",
 	}
 
 	if err := c.R.AddFriend(invit); err != nil {
@@ -83,7 +83,7 @@ func (c *Controller) AddFriend(w http.ResponseWriter, r *http.Request) {
 
 	data := model.UpdateMessage{
 		Message: "Friend request sent successfully",
-		Status: http.StatusOK,
+		Status:  http.StatusOK,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -113,10 +113,28 @@ func (c *Controller) ConfirmFriend(w http.ResponseWriter, r *http.Request) {
 
 	data := model.UpdateMessage{
 		Message: "Friend request confirmed successfully",
-		Status: http.StatusOK,
+		Status:  http.StatusOK,
 	}
 
-	w.Header().Set("Content-Type", "application/json") 	
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(data)
+}
+
+func (c *Controller) DeclineFriendRequest(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	if err := c.R.DeclineFriendRequest(id); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	data := model.UpdateMessage{
+		Message: "Friend request declined successfully",
+		Status:  http.StatusOK,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
 	json.NewEncoder(w).Encode(data)
 }
