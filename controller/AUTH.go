@@ -4,7 +4,6 @@ import (
 	"KageNoEn/lib"
 	"KageNoEn/model"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -18,8 +17,6 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println(input.Password)
 
 	res, genErr := lib.GenerateId(input.Username)
 	if genErr != nil {
