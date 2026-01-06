@@ -14,7 +14,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "homePlexe",
+	Use:   "kaizen",
 	Short: "A brief description of your application",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -28,7 +28,7 @@ var rootCmd = &cobra.Command{
 		r.RegisterRouter()
 
 		log.Println("Server is running on port :4400")
-		log.Fatal(http.ListenAndServe(":4400", r.Handler()))
+		log.Fatal(http.ListenAndServeTLS(":4400", "key/localhost.pem", "key/localhost-key.pem", r.Handler()))
 	},
 }
 

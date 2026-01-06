@@ -62,15 +62,15 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // true en prod HTTPS
-		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(24 * time.Hour),
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+		MaxAge:   30 * 24 * 60 * 60,
 	})
 
 	secure := model.SecureUserRes{
 		Id:        user.Id,
 		Username:  user.Username,
-		Email: user.Email,
+		Email:     user.Email,
 		Rank:      user.Rank,
 		Status:    user.Status,
 		Role:      user.Role,
@@ -119,10 +119,10 @@ func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(24 * time.Hour),
-	})
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+		MaxAge:   30 * 24 * 60 * 60,
+	})	
 
 	user.IsOnline = true
 	user.LastLogin = time.Now()
@@ -148,7 +148,6 @@ func (c *Controller) SignIn(w http.ResponseWriter, r *http.Request) {
 		Data: secure,
 	})
 }
-
 
 func (c *Controller) ChangePass(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
@@ -207,18 +206,43 @@ func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
 	_ = c.R.UpdateUser(user)
 
 	http.SetCookie(w, &http.Cookie{
-    Name:     "access_token",
-    Value:    "",
-    Path:     "/",
-    HttpOnly: true,
-    Secure:   false,
-    Expires:  time.Unix(0, 0),
-    MaxAge:   -1,
-    SameSite: http.SameSiteLaxMode,
-  })
+		Name:     "access_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		SameSite: http.SameSiteLaxMode,
+	})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Logged out successfully",
 	})
+}
+
+func (c *Controller) Session(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("access_token")
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]bool{"connection": false})
+		return
+	}
+
+	claims, err := lib.ValidateToken(cookie.Value)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]bool{"connection": false})
+		return
+	}
+
+	if claims.ExpiresAt < time.Now().Unix() {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]bool{"connection": false})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]bool{"connection": true})
 }

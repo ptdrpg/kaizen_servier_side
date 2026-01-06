@@ -45,6 +45,9 @@ func (r *Router) RegisterRouter() {
 	r.R.Group(func(private chi.Router) {
 		// private.Use(lib.JWTMiddleware)
 		private.Route("/api/v1", func(v1 chi.Router) {
+			v1.Route("/session", func(session chi.Router) {
+				session.Get("/", r.C.Session)	
+			})
 			v1.Route("/roles", func(role chi.Router) {
 				role.Get("/", r.C.GetAllRoles)
 				role.Get("/{id}", r.C.GetRole)
